@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
 
 app = FastAPI()
 
@@ -29,6 +30,7 @@ class SensorsData(Base):
     idDistr = Column(Integer)
     idSensor = Column(Integer)
     value = Column(String(255))
+    date = Column(String(255))
 
 
 Base.metadata.create_all(bind=engine)
@@ -48,12 +50,15 @@ def get_categories():
 @app.post('/ODB/sensors/data')
 def addDataSensors(sensors: list[dict]):
     db = SessionLocal()
-
+    today_date = datetime.now()
+    formatted_date = today_date.strftime("%d-%m-%Y %H:%M:%S")
     for sensor in sensors:
+        
         data = SensorsData(
             idDistr=sensor['idDistr'],
             idSensor=sensor['idSensor'],
-            value=sensor['value']
+            value=sensor['value'],
+            date=formatted_date
         )
         db.add(data)
 
